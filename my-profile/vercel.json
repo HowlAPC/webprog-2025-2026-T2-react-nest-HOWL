@@ -1,7 +1,21 @@
 {
   "version": 2,
-  "rewrites": [
-    { "source": "/api/:path*", "destination": "backend/api/index.ts" },
-    { "source": "/(.*)", "destination": "frontend/dist/index.html" }
+  "builds": [
+    {
+      "src": "src/main.ts",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "backend/src/main.ts",
+      "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+      "headers": {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET,POST,PUT,DELETE,OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization"
+      }
+    }
   ]
 }
