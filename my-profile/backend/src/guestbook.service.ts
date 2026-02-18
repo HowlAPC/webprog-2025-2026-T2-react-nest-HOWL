@@ -1,18 +1,36 @@
 import { Injectable } from '@nestjs/common';
-import { createClient } from '@supabase/supabase-js';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
 @Injectable()
 export class GuestbookService {
-  private supabase = createClient(
-    process.env.SUPABASE_URL,
-    process.env.SUPABASE_KEY
-  );
+  private supabase: SupabaseClient;
 
-  async findAll() { 
-    const { data } = await this.supabase.from('guestbook').select('*').order('created_at', { ascending: false });
+  constructor() {
+    this.supabase = createClient(
+      process.env.SUPABASE_URL,
+      process.env.SUPABASE_KEY
+    );
+  }
+
+  // This is what guestbook.controller.ts is looking for:
+  async getPosts() {
+    const { data, error } = await this.supabase
+      .from('guestbook')
+      .select('*')
+      .order('created_at', { ascending: false });
+    
+    if (error) throw error;
     return data;
   }
-  async create(dto: any) { return await this.supabase.from('guestbook').insert([dto]); }
-  async update(id: string, dto: any) { return await this.supabase.from('guestbook').update(dto).eq('id', id); }
-  async delete(id: string) { return await this.supabase.from('guestbook').delete().eq('id', id); }
+
+  // This is the second method the controller needs:
+  async createPost(payload: { name: string; message: string }) {
+    const { data, error } = await this.supabase
+      .from('guestbook')
+      .insert([payload])
+      .select();
+    
+    if (error) throw error;
+    return data;
+  }
 }

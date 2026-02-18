@@ -1,50 +1,69 @@
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
+import './App.css';
 
-// Use environment variable for the backend URL
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api/guestbook';
+function App() {
+  const [posts, setPosts] = useState([]);
+  const [name, setName] = useState('');
+  const [message, setMessage] = useState('');
 
-export default function App() {
-  const [entries, setEntries] = useState([]);
-  const [form, setForm] = useState({ name: '', message: '' });
+  const API_URL = 'http://localhost:3000/guestbook';
 
-  const load = async () => {
-    const res = await fetch(API_URL);
-    setEntries(await res.json());
+  // Function to load posts from NestJS
+  const fetchPosts = async () => {
+    try {
+      const response = await fetch(API_URL);
+      const data = await response.json();
+      setPosts(data);
+    } catch (err) {
+      console.error("Error fetching posts:", err);
+    }
   };
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    fetchPosts();
+  }, []);
 
-  const save = async (e) => {
+  const handleSignGuestbook = async (e) => {
     e.preventDefault();
     await fetch(API_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(form),
+      body: JSON.stringify({ name, message }),
     });
-    setForm({ name: '', message: '' });
-    load();
-  };
-
-  const remove = async (id) => {
-    await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
-    load();
+    setName('');
+    setMessage('');
+    fetchPosts(); // Refresh the list
   };
 
   return (
-    <div style={{ maxWidth: '600px', margin: 'auto', padding: '2rem' }}>
+    <div className="App">
       <h1>My Profile & Guestbook</h1>
-      <form onSubmit={save}>
-        <input placeholder="Name" value={form.name} onChange={e => setForm({...form, name: e.target.value})} required />
-        <textarea placeholder="Message" value={form.message} onChange={e => setForm({...form, message: e.target.value})} required />
+      
+      {/* Your Form */}
+      <form onSubmit={handleSignGuestbook}>
+        <input 
+          placeholder="Name" 
+          value={name} 
+          onChange={(e) => setName(e.target.value)} 
+        />
+        <textarea 
+          placeholder="Message" 
+          value={message} 
+          onChange={(e) => setMessage(e.target.value)} 
+        />
         <button type="submit">Sign Guestbook</button>
       </form>
-      <hr />
-      {entries.map(e => (
-        <div key={e.id}>
-          <p><strong>{e.name}</strong>: {e.message}</p>
-          <button onClick={() => remove(e.id)}>Delete</button>
-        </div>
-      ))}
+
+      {/* Displaying the Posts */}
+      <div className="guestbook-list">
+        {posts.map((post) => (
+          <div key={post.id} className="post-item">
+            <strong>{post.name}</strong>: {post.message}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
+
+export default App;

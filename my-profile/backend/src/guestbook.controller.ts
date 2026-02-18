@@ -1,12 +1,17 @@
-import { Controller, Get, Post, Put, Delete, Body, Param } from '@nestjs/common';
+import { Controller, Get, Post, Body } from '@nestjs/common';
 import { GuestbookService } from './guestbook.service';
 
 @Controller('guestbook')
 export class GuestbookController {
-  constructor(private readonly service: GuestbookService) {}
+  constructor(private readonly guestbookService: GuestbookService) {}
 
-  @Get() getAll() { return this.service.findAll(); }
-  @Post() create(@Body() dto: any) { return this.service.create(dto); }
-  @Put(':id') update(@Param('id') id: string, @Body() dto: any) { return this.service.update(id, dto); }
-  @Delete(':id') remove(@Param('id') id: string) { return this.service.delete(id); }
+  @Get()
+  async findAll() {
+    return this.guestbookService.getPosts(); // Calls the method we just wrote
+  }
+
+  @Post()
+  async create(@Body() body: { name: string; message: string }) {
+    return this.guestbookService.createPost(body); // Calls the other method
+  }
 }
