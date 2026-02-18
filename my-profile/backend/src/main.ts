@@ -3,7 +3,8 @@ import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.enableCors(); // Critical for React to talk to Nest
+  // This allows your Vercel frontend to talk to your Vercel backend
+  app.enableCors(); 
   await app.listen(3000);
 }
 // Export for Vercel Serverless
