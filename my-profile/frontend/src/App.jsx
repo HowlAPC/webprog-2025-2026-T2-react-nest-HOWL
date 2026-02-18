@@ -8,7 +8,7 @@ function App() {
   const [message, setMessage] = useState('');
 
   const API_URL = 'https://webprog-2025-2026-t2-react-nest-how.vercel.app/guestbook';
-
+  
   // 2. Function to GET posts from NestJS backend
   const fetchPosts = async () => {
     try {
